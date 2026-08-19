@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CONNECTING ROD AND PISTON ASSEMBLY CALCULATOR</title>
+  <!-- jsPDF & autoTable for PDF Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root {
+      --bg: #090a10;
+      --card-bg: rgba(18, 22, 36, 0.85);
+      --neon-cyan: #00f3ff;
+      --neon-magenta: #ff007f;
+      --neon-green: #00ff66;
+      --neon-yellow: #ffe600;
+      --neon-red: #ff3344;
+      --text: #e0f4ff;
+      --text-dim: #8ba3c7;
+      --border-glow: 0 0 15px rgba(0, 243, 255, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #141829, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 16px;
+      box-shadow: var(--border-glow);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 10px var(--neon-cyan), 0 0 25px rgba(0, 243, 255, 0.5);
+    }
+
+    /* Main Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 850px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card Panels */
+    .panel {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 1.5rem;
+      border: 1px solid rgba(0, 243, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .panel-title {
+      font-size: 1.2rem;
+      color: var(--neon-magenta);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255, 0, 127, 0.3);
+      padding-bottom: 0.5rem;
+      text-shadow: 0 0 8px var(--neon-magenta);
+    }
+
+    /* Form Fields */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .spec-hint {
+      font-size: 0.75rem;
+      color: var(--neon-yellow);
+    }
+
+    input {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid #223254;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
+    }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0.75rem 1.4rem;
+      border-radius: 8px;
+      border: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-calc {
+      background: transparent;
+      color: var(--neon-cyan);
+      border: 1px solid var(--neon-cyan);
+      box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2), 0 0 10px rgba(0, 243, 255, 0.3);
+      width: 100%;
+    }
+
+    .btn-calc:hover {
+      background: var(--neon-cyan);
+      color: #000;
+      box-shadow: 0 0 20px var(--neon-cyan);
+    }
+
+    .btn-export-csv {
+      background: transparent;
+      color: var(--neon-green);
+      border: 1px solid var(--neon-green);
+      box-shadow: 0 0 8px rgba(0, 255, 102, 0.3);
+    }
+
+    .btn-export-csv:hover {
+      background: var(--neon-green);
+      color: #000;
+      box-shadow: 0 0 15px var(--neon-green);
+    }
+
+    .btn-export-pdf {
+      background: transparent;
+      color: var(--neon-magenta);
+      border: 1px solid var(--neon-magenta);
+      box-shadow: 0 0 8px rgba(255, 0, 127, 0.3);
+    }
+
+    .btn-export-pdf:hover {
+      background: var(--neon-magenta);
+      color: #000;
+      box-shadow: 0 0 15px var(--neon-magenta);
+    }
+
+    .btn-clear {
+      background: transparent;
+      color: var(--neon-red);
+      border: 1px solid var(--neon-red);
+      margin-left: auto;
+    }
+
+    .btn-clear:hover {
+      background: var(--neon-red);
+      color: #fff;
+      box-shadow: 0 0 15px var(--neon-red);
+    }
+
+    /* Results Screen */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .metric-box {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .metric-box.highlight {
+      grid-column: span 2;
+      border-color: var(--neon-green);
+      background: rgba(0, 255, 102, 0.05);
+      text-align: center;
+    }
+
+    .metric-title {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #fff;
+      margin-top: 0.3rem;
+    }
+
+    .metric-box.highlight .metric-value {
+      font-size: 2rem;
+      color: var(--neon-green);
+      text-shadow: 0 0 12px rgba(0, 255, 102, 0.6);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-top: 0.5rem;
+      letter-spacing: 1px;
+    }
+
+    .status-pass {
+      background: rgba(0, 255, 102, 0.2);
+      color: var(--neon-green);
+      border: 1px solid var(--neon-green);
+    }
+
+    .status-fail {
+      background: rgba(255, 51, 68, 0.2);
+      color: var(--neon-red);
+      border: 1px solid var(--neon-red);
+    }
+
+    /* Portal Log Table */
+    .log-panel {
+      grid-column: 1 / -1;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      max-height: 300px;
+      border: 1px solid rgba(0, 243, 255, 0.15);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: rgba(0, 243, 255, 0.1);
+      color: var(--neon-cyan);
+      padding: 0.8rem 1rem;
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(5px);
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+    }
+
+    td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    tr:hover {
+      background: rgba(0, 243, 255, 0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>CONNECTING ROD AND PISTON ASSEMBLY CALCULATOR</h1>
+    </header>
+
+    <div class="grid">
+      <!-- Input Panel -->
+      <section class="panel">
+        <h2 class="panel-title">Inspection Inputs</h2>
+        
+        <div class="input-group">
+          <label>Engine No</label>
+          <input type="text" id="engineNo" placeholder="e.g. ENG-99201">
+        </div>
+
+        <div class="input-group">
+          <label>SI No of Con Rod Set</label>
+          <input type="text" id="siNo" placeholder="e.g. M842/26">
+        </div>
+
+        <div class="input-group">
+          <label>Weight of Main Connecting Rod <span class="spec-hint">(5600 ± 50 g)</span></label>
+          <input type="number" id="mainRod" placeholder="Range: 5550 - 5650">
+        </div>
+
+        <div class="input-group">
+          <label>Weight of Articulated Connecting Rod <span class="spec-hint">(2140 ± 20 g)</span></label>
+          <input type="number" id="artiRod" placeholder="Range: 2120 - 2160">
+        </div>
+
+        <div class="input-group">
+          <label>Weight of Piston Assy LH <span class="spec-hint">(3060 ± 30 g, Max diff: 5g)</span></label>
+          <input type="number" id="pistonLH" placeholder="Range: 3030 - 3090">
+        </div>
+
+        <div class="input-group">
+          <label>Weight of Piston Assy RH <span class="spec-hint">(3060 ± 30 g, Max diff: 5g)</span></label>
+          <input type="number" id="pistonRH" placeholder="Range: 3030 - 3090">
+        </div>
+
+        <button class="btn-calc" onclick="calculateAssembly()">Calculate & Save Entry</button>
+      </section>
+
+      <!-- Live Calculation Result Panel -->
+      <section class="panel">
+        <h2 class="panel-title">Assembly Metrics</h2>
+        
+        <div class="metric-grid">
+          <div class="metric-box">
+            <div class="metric-title">Con Rod Set (Main + Articulated)</div>
+            <div class="metric-value" id="resTotal1">-- <span style="font-size: 0.9rem">g</span></div>
+          </div>
+
+          <div class="metric-box">
+            <div class="metric-title">Piston Variation (|LH - RH|)</div>
+            <div class="metric-value" id="resVariation">-- <span style="font-size: 0.9rem">g</span></div>
+          </div>
+
+          <div class="metric-box">
+            <div class="metric-title">Main + Piston LH</div>
+            <div class="metric-value" id="resTotal2">-- <span style="font-size: 0.9rem">g</span></div>
+          </div>
+
+          <div class="metric-box">
+            <div class="metric-title">Articulated + Piston RH</div>
+            <div class="metric-value" id="resTotal3">-- <span style="font-size: 0.9rem">g</span></div>
+          </div>
+
+          <div class="metric-box highlight">
+            <div class="metric-title">Total Weight of Assembly (LH + RH)</div>
+            <div class="metric-value" id="resGrandTotal">-- g</div>
+            <div id="toleranceStatus" class="status-badge" style="display: none;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Log Data Table Panel -->
+      <section class="panel log-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <h2 class="panel-title" style="margin: 0; border: none; padding: 0;">Portal Inspection Logs</h2>
+          <div class="btn-group">
+            <button class="btn-export-csv" onclick="exportToCSV()">Export CSV</button>
+            <button class="btn-export-pdf" onclick="exportToPDF()">Export PDF</button>
+            <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Engine No</th>
+                <th>SI No</th>
+                <th>Main (g)</th>
+                <th>Arti (g)</th>
+                <th>Piston LH (g)</th>
+                <th>Piston RH (g)</th>
+                <th>Con Rod Total (g)</th>
+                <th>LH Total (g)</th>
+                <th>RH Total (g)</th>
+                <th>Grand Total (g)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    let logs = JSON.parse(localStorage.getItem('conrod_piston_logs')) || [];
+
+    window.onload = () => {
+      renderTable();
+    };
+
+    function calculateAssembly() {
+      const engineNo = document.getElementById('engineNo').value.trim();
+      const siNo = document.getElementById('siNo').value.trim();
+      const main = parseFloat(document.getElementById('mainRod').value);
+      const arti = parseFloat(document.getElementById('artiRod').value);
+      const lh = parseFloat(document.getElementById('pistonLH').value);
+      const rh = parseFloat(document.getElementById('pistonRH').value);
+
+      if (!engineNo || !siNo || isNaN(main) || isNaN(arti) || isNaN(lh) || isNaN(rh)) {
+        alert('Please fill out all inputs before calculating.');
+        return;
+      }
+
+      // Calculations
+      const total1 = main + arti;
+      const total2 = main + lh;
+      const total3 = arti + rh;
+      const grandTotal = total2 + total3;
+      const pistonDiff = Math.abs(lh - rh);
+
+      // Spec Validation
+      const mainValid = main >= 5550 && main <= 5650;
+      const artiValid = arti >= 2120 && arti <= 2160;
+      const lhValid = lh >= 3030 && lh <= 3090;
+      const rhValid = rh >= 3030 && rh <= 3090;
+      const diffValid = pistonDiff <= 5;
+      const isAccepted = mainValid && artiValid && lhValid && rhValid && diffValid;
+
+      // Update Screen
+      document.getElementById('resTotal1').innerHTML = `${total1} <span style="font-size: 0.9rem">g</span>`;
+      document.getElementById('resTotal2').innerHTML = `${total2} <span style="font-size: 0.9rem">g</span>`;
+      document.getElementById('resTotal3').innerHTML = `${total3} <span style="font-size: 0.9rem">g</span>`;
+      document.getElementById('resVariation').innerHTML = `${pistonDiff} <span style="font-size: 0.9rem">g</span>`;
+      document.getElementById('resGrandTotal').innerText = `${grandTotal} g`;
+
+      const statusBadge = document.getElementById('toleranceStatus');
+      statusBadge.style.display = 'inline-block';
+      if (isAccepted) {
+        statusBadge.innerText = 'SPECIFICATION: ACCEPTED';
+        statusBadge.className = 'status-badge status-pass';
+      } else {
+        statusBadge.innerText = 'SPECIFICATION: OUT OF TOLERANCE';
+        statusBadge.className = 'status-badge status-fail';
+      }
+
+      // Append Log Entry
+      const entry = {
+        timestamp: new Date().toLocaleString(),
+        engineNo,
+        siNo,
+        main,
+        arti,
+        lh,
+        rh,
+        total1,
+        total2,
+        total3,
+        grandTotal,
+        status: isAccepted ? 'ACCEPTED' : 'REJECTED'
+      };
+
+      logs.unshift(entry);
+      localStorage.setItem('conrod_piston_logs', JSON.stringify(logs));
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('logTableBody');
+      tbody.innerHTML = '';
+
+      logs.forEach(log => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${log.timestamp}</td>
+          <td><strong>${log.engineNo}</strong></td>
+          <td>${log.siNo}</td>
+          <td>${log.main}</td>
+          <td>${log.arti}</td>
+          <td>${log.lh}</td>
+          <td>${log.rh}</td>
+          <td>${log.total1}</td>
+          <td>${log.total2}</td>
+          <td>${log.total3}</td>
+          <td><strong style="color: var(--neon-green)">${log.grandTotal}</strong></td>
+          <td style="color: ${log.status === 'ACCEPTED' ? 'var(--neon-green)' : 'var(--neon-red)'}; font-weight: bold;">${log.status}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function clearLogs() {
+      if (confirm('Are you sure you want to clear all inspection records?')) {
+        logs = [];
+        localStorage.removeItem('conrod_piston_logs');
+        renderTable();
+      }
+    }
+
+    function exportToCSV() {
+      if (logs.length === 0) {
+        alert('No data available to export.');
+        return;
+      }
+      const headers = ["Timestamp", "Engine No", "SI No", "Main Rod (g)", "Articulated Rod (g)", "Piston LH (g)", "Piston RH (g)", "Con Rod Total (g)", "LH Total (g)", "RH Total (g)", "Grand Total (g)", "Status"];
+      const rows = logs.map(l => [
+        `"${l.timestamp}"`,
+        `"${l.engineNo}"`,
+        `"${l.siNo}"`,
+        l.main,
+        l.arti,
+        l.lh,
+        l.rh,
+        l.total1,
+        l.total2,
+        l.total3,
+        l.grandTotal,
+        l.status
+      ]);
+
+      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Assembly_Log_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function exportToPDF() {
+      if (logs.length === 0) {
+        alert('No data available to export.');
+        return;
+      }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "landscape" });
+
+      doc.setFontSize(14);
+      doc.text("CONNECTING ROD AND PISTON ASSEMBLY CALCULATOR - LOG REPORT", 14, 15);
+
+      const tableColumn = ["Timestamp", "Engine No", "SI No", "Main (g)", "Arti (g)", "LH (g)", "RH (g)", "Con Rod Set", "LH + Main", "RH + Arti", "Grand Total", "Status"];
+      const tableRows = logs.map(l => [
+        l.timestamp,
+        l.engineNo,
+        l.siNo,
+        l.main,
+        l.arti,
+        l.lh,
+        l.rh,
+        l.total1,
+        l.total2,
+        l.total3,
+        l.grandTotal,
+        l.status
+      ]);
+
+      doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 22,
+        theme: 'grid',
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [18, 22, 36], textColor: [0, 243, 255] }
+      });
+
+      doc.save(`Assembly_Log_${Date.now()}.pdf`);
+    }
+  </script>
+</body>
+</html>
