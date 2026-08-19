@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CyberTorque // Con-Rod & Piston Assembly Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070913;
+      --card-bg: rgba(13, 17, 34, 0.75);
+      --card-border: rgba(0, 240, 255, 0.2);
+      --neon-cyan: #00f0ff;
+      --neon-magenta: #ff007f;
+      --neon-green: #00ff88;
+      --neon-amber: #ffaa00;
+      --neon-red: #ff3344;
+      --text-main: #f0f4ff;
+      --text-muted: #8a99ad;
+      --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.45);
+      --glow-magenta: 0 0 20px rgba(255, 0, 127, 0.45);
+      --glow-green: 0 0 20px rgba(0, 255, 136, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Rajdhani', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 10%, #151b38 0%, var(--bg) 80%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Subtle background grid */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: 
+        linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      color: var(--neon-cyan);
+      border: 1px solid var(--neon-cyan);
+      padding: 4px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      box-shadow: var(--glow-cyan);
+      margin-bottom: 12px;
+      animation: pulse 2.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.85; }
+      50% { opacity: 0.4; }
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #fff, var(--neon-cyan), var(--neon-magenta));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      letter-spacing: 1px;
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Neon Glassmorphism Card */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(0, 240, 255, 0.4);
+    }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+
+    .card-title.magenta {
+      color: var(--neon-magenta);
+    }
+
+    /* Inputs */
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+
+    .tolerance {
+      font-size: 0.8rem;
+      color: var(--neon-amber);
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(4, 7, 20, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 12px 42px 12px 14px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+      background: rgba(4, 7, 20, 0.9);
+    }
+
+    .unit {
+      position: absolute;
+      right: 14px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    .status-msg {
+      font-size: 0.8rem;
+      margin-top: 4px;
+      min-height: 18px;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    /* Status indicators */
+    .valid { color: var(--neon-green); }
+    .invalid { color: var(--neon-red); }
+
+    /* Results section */
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+
+    .result-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .result-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--neon-cyan);
+    }
+
+    .total-hero {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(255, 0, 127, 0.1));
+      border: 1px solid var(--neon-cyan);
+      box-shadow: var(--glow-cyan);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      margin-top: 18px;
+      animation: breathe 4s infinite alternate;
+    }
+
+    @keyframes breathe {
+      0% { box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); }
+      100% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.5), 0 0 20px rgba(255, 0, 127, 0.3); }
+    }
+
+    .total-hero .title {
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--neon-magenta);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .total-hero .value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 15px var(--neon-cyan);
+    }
+
+    /* Actions */
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    button {
+      flex: 1;
+      padding: 14px;
+      border-radius: 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.25s ease;
+      border: none;
+      outline: none;
+      position: relative;
+    }
+
+    .btn-reset {
+      background: transparent;
+      color: var(--neon-magenta);
+      border: 1px solid var(--neon-magenta);
+    }
+
+    .btn-reset:hover {
+      background: var(--neon-magenta);
+      color: #fff;
+      box-shadow: var(--glow-magenta);
+      transform: translateY(-2px);
+    }
+
+    .btn-save {
+      background: linear-gradient(90deg, var(--neon-cyan), #00a8ff);
+      color: #000;
+      box-shadow: var(--glow-cyan);
+    }
+
+    .btn-save:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.7);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="badge">Precision Balance Console</div>
+      <h1>Con-Rod & Piston Hub</h1>
+      <p class="subtitle">Real-Time Assembly Weight Variance & Tolerance Matrix</p>
+    </header>
+
+    <div class="grid">
+      <!-- Input Section -->
+      <div class="card">
+        <div class="card-title">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          SPECIFICATION INPUTS
+        </div>
+
+        <div class="input-group">
+          <label>SET SERIAL NUMBER (SI)</label>
+          <div class="input-wrapper">
+            <input type="text" id="siNo" placeholder="e.g. M842/26" />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>
+            MAIN CON-ROD
+            <span class="tolerance">5600 ± 50 g</span>
+          </label>
+          <div class="input-wrapper">
+            <input type="number" id="mainRod" placeholder="5600" />
+            <span class="unit">GMS</span>
+          </div>
+          <div class="status-msg" id="mainRodMsg"></div>
+        </div>
+
+        <div class="input-group">
+          <label>
+            ARTICULATED CON-ROD
+            <span class="tolerance">2140 ± 20 g</span>
+          </label>
+          <div class="input-wrapper">
+            <input type="number" id="artiRod" placeholder="2140" />
+            <span class="unit">GMS</span>
+          </div>
+          <div class="status-msg" id="artiRodMsg"></div>
+        </div>
+
+        <div class="input-group">
+          <label>
+            PISTON ASSY LH
+            <span class="tolerance">3060 ± 30 g</span>
+          </label>
+          <div class="input-wrapper">
+            <input type="number" id="pistonLH" placeholder="3060" />
+            <span class="unit">GMS</span>
+          </div>
+          <div class="status-msg" id="lhMsg"></div>
+        </div>
+
+        <div class="input-group">
+          <label>
+            PISTON ASSY RH
+            <span class="tolerance">3060 ± 30 g</span>
+          </label>
+          <div class="input-wrapper">
+            <input type="number" id="pistonRH" placeholder="3060" />
+            <span class="unit">GMS</span>
+          </div>
+          <div class="status-msg" id="rhMsg"></div>
+        </div>
+
+        <div class="status-msg" id="pistonDeltaMsg"></div>
+      </div>
+
+      <!-- Output / Results Section -->
+      <div class="card">
+        <div class="card-title magenta">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/></svg>
+          COMPUTED TOTALS
+        </div>
+
+        <div class="result-row">
+          <span class="result-label">Combined Con-Rods (Main + Arti)</span>
+          <span class="result-val" id="resTotal1">0 <small style="font-size:0.6em">g</small></span>
+        </div>
+
+        <div class="result-row">
+          <span class="result-label">Bank LH (Main + Piston LH)</span>
+          <span class="result-val" id="resTotal2">0 <small style="font-size:0.6em">g</small></span>
+        </div>
+
+        <div class="result-row">
+          <span class="result-label">Bank RH (Arti + Piston RH)</span>
+          <span class="result-val" id="resTotal3">0 <small style="font-size:0.6em">g</small></span>
+        </div>
+
+        <div class="result-row">
+          <span class="result-label">Piston Variance (|LH - RH|)</span>
+          <span class="result-val" id="resPistonDiff" style="color: var(--neon-amber);">0 <small style="font-size:0.6em">g</small></span>
+        </div>
+
+        <div class="total-hero">
+          <div class="title">Total Assembly Weight</div>
+          <div class="value" id="resFinalTotal">0 <span style="font-size: 1.2rem; font-weight: 500;">GMS</span></div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-reset" onclick="resetForm()">Reset</button>
+          <button class="btn-save" onclick="exportData()">Export Log</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const inputs = ['mainRod', 'artiRod', 'pistonLH', 'pistonRH'].map(id => document.getElementById(id));
+
+    inputs.forEach(input => input.addEventListener('input', calculate));
+    document.getElementById('siNo').addEventListener('input', calculate);
+
+    function validateRange(val, min, max, elementId, name) {
+      const msgEl = document.getElementById(elementId);
+      if (!val) {
+        msgEl.innerText = '';
+        return true;
+      }
+      if (val >= min && val <= max) {
+        msgEl.innerText = `✓ ${name} within spec (${val}g)`;
+        msgEl.className = 'status-msg valid';
+        return true;
+      } else {
+        const diff = val < min ? `(${val - min}g under)` : `(+${val - max}g over)`;
+        msgEl.innerText = `⚠ Out of spec: ${diff}`;
+        msgEl.className = 'status-msg invalid';
+        return false;
+      }
+    }
+
+    function calculate() {
+      const main = parseFloat(document.getElementById('mainRod').value) || 0;
+      const arti = parseFloat(document.getElementById('artiRod').value) || 0;
+      const lh = parseFloat(document.getElementById('pistonLH').value) || 0;
+      const rh = parseFloat(document.getElementById('pistonRH').value) || 0;
+
+      // Spec range validations
+      validateRange(main, 5550, 5650, 'mainRodMsg', 'Main Rod');
+      validateRange(arti, 2120, 2160, 'artiRodMsg', 'Articulated Rod');
+      validateRange(lh, 3030, 3090, 'lhMsg', 'Piston LH');
+      validateRange(rh, 3030, 3090, 'rhMsg', 'Piston RH');
+
+      // Piston LH vs RH variation check (Max allowable: 5g)
+      const deltaMsg = document.getElementById('pistonDeltaMsg');
+      if (lh && rh) {
+        const diff = Math.abs(lh - rh);
+        document.getElementById('resPistonDiff').innerHTML = `${diff} <small style="font-size:0.6em">g</small>`;
+        if (diff <= 5) {
+          deltaMsg.innerText = `✓ Piston variation: ${diff}g (Allowed ≤ 5g)`;
+          deltaMsg.className = 'status-msg valid';
+        } else {
+          deltaMsg.innerText = `⚠ Piston variation exceeded: ${diff}g (Max 5g)`;
+          deltaMsg.className = 'status-msg invalid';
+        }
+      } else {
+        document.getElementById('resPistonDiff').innerHTML = `0 <small style="font-size:0.6em">g</small>`;
+        deltaMsg.innerText = '';
+      }
+
+      // Calculations[cite: 1]
+      const total1 = main + arti;
+      const total2 = main + lh;
+      const total3 = arti + rh;
+      const finalTotal = total2 + total3;
+
+      // Update UI
+      document.getElementById('resTotal1').innerHTML = `${total1} <small style="font-size:0.6em">g</small>`;
+      document.getElementById('resTotal2').innerHTML = `${total2} <small style="font-size:0.6em">g</small>`;
+      document.getElementById('resTotal3').innerHTML = `${total3} <small style="font-size:0.6em">g</small>`;
+      document.getElementById('resFinalTotal').innerHTML = `${finalTotal} <span style="font-size: 1.2rem; font-weight: 500;">GMS</span>`;
+    }
+
+    function resetForm() {
+      document.getElementById('siNo').value = '';
+      inputs.forEach(i => i.value = '');
+      document.querySelectorAll('.status-msg').forEach(el => el.innerText = '');
+      calculate();
+    }
+
+    function exportData() {
+      const si = document.getElementById('siNo').value || 'UNSPECIFIED';
+      const main = document.getElementById('mainRod').value || 0;
+      const arti = document.getElementById('artiRod').value || 0;
+      const lh = document.getElementById('pistonLH').value || 0;
+      const rh = document.getElementById('pistonRH').value || 0;
+      const finalTotal = (parseFloat(main) + parseFloat(lh)) + (parseFloat(arti) + parseFloat(rh));
+
+      const log = `=== CON-ROD & PISTON ASSEMBLY LOG ===\n` +
+                  `SI NO: ${si}\n` +
+                  `Main Con-Rod: ${main} g\n` +
+                  `Arti Con-Rod: ${arti} g\n` +
+                  `Piston LH: ${lh} g\n` +
+                  `Piston RH: ${rh} g\n` +
+                  `Piston Delta: ${Math.abs(lh - rh)} g\n` +
+                  `Total Assembly Weight: ${finalTotal} g\n` +
+                  `Timestamp: ${new Date().toLocaleString()}`;
+
+      const blob = new Blob([log], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Assembly_${si.replace(/[^a-z0-9]/gi, '_')}.txt`;
+      a.click();
+    }
+  </script>
+</body>
+</html>
